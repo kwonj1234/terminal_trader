@@ -101,7 +101,28 @@ def display_sell(ticker, shares, price, new_balance):
     print(f"\nSuccesfully sold {shares} shares of {ticker} at ${price} per share")
     print("Your new balance is $" + "{:.2f}".format(new_balance))
 
-#Signing Out
+#5) display positions
+def display_position(ticker, shares, current_price, mv):
+    print(f"\n{ticker} : {shares} shares")
+    print(f"Market Value : ${mv}, Current Price : ${current_price}\n")
+
+#6) display transactions
+def display_header():
+    print("\nTime Stamp          Ticker  Volume   Price        Market Value")
+
+def display_transactions(ticker, shares, price, mv, time):
+    print(f"{time} : {ticker},    {shares},    ${price},    ${mv}")
+
+#7) Get a quote, see current price
+def which_stock():
+    print("\nWhich stock would you like to see the current price of?")
+    print("(Input the ticker)")
+    return input()
+    
+def display_price(ticker, current_price):
+    print(f"{ticker} : ${current_price}")
+
+#8) Signing Out
 def signout():
     print('\nThank you for visiting Herkshire Bathaway\n')
 

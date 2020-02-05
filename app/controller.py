@@ -76,10 +76,44 @@ def run():
                     user.save()
                 
                 elif choice == "3": #purchase shares
-                    purchase_shares(user)
+                    purchase_shares(user)   #line 118
 
                 elif choice == "4": #sell shares
-                    sell_shares(user)
+                    sell_shares(user)       #line 164 - similar to purchase shares
+
+                elif choice == "5": #current positions
+                    position = Positions.select_all(user.pk)
+                    for index in range(0,len(position)):
+                        current_price = get_price(position[index].ticker)
+                        mv = 100 * position[index].shares * current_price
+                        view.display_position(position[index].ticker, position[index].shares, current_price, mv)
+                    
+                elif choice == "6": #transaction history
+                    trade = Trades.select_all(user.pk)
+                    view.display_header()
+                    for index in range(0,len(trade)):
+                        view.display_transactions(trade[index].ticker, \
+                            trade[index].volume, trade[index].price, \
+                                trade[index].mv, trade[index].time)
+
+                elif choice == "7": #get a quote
+                    ticker = view.which_stock()
+                    price = "error"
+
+                    #exception handling for non-alpha ticker, incorrect ticker
+                    while ticker.isalpha() == False or price == "error":
+                        if ticker.isalpha() == False:
+                            view.not_ticker
+                            ticker = view.buy_stock()
+                        elif price == "error":
+                            try:
+                                price = get_price(ticker)
+                            except Exception:
+                                view.incorrect_ticker()
+                                ticker = view.which_stock()
+                    ticker = ticker.upper()
+
+                    view.display_price(ticker, price)      
 
 def purchase_shares(user):
     ticker = view.buy_stock()
@@ -96,6 +130,7 @@ def purchase_shares(user):
             except Exception:
                 view.incorrect_ticker()
                 ticker = view.buy_stock()
+    ticker = ticker.upper()
 
     shares = view.buy_shares()
     #exception handling for shares input
