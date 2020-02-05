@@ -44,15 +44,18 @@ class Trades:
             c.execute(sql, values)
 
     @classmethod
-    def select_all(cls, user_pk):
+    def select_all(cls, user_pk, ticker = None):
         """select all entries from our database based on whether they are complete or not,
         or selects all if complete = None"""
         with sqlite3.connect(cls.dbpath) as conn:
             conn.row_factory = sqlite3.Row 
             c = conn.cursor()
-
-            sql = """SELECT * FROM {} WHERE account_pk = ?;""".format(cls.tablename)
-            c.execute(sql, (user_pk,))
+            if ticker == None:
+                sql = """SELECT * FROM {} WHERE account_pk = ?;""".format(cls.tablename)
+                c.execute(sql, (user_pk,))
+            else:
+                sql = """SELECT * FROM {} WHERE account_pk = ? and ticker = ?;""".format(cls.tablename)
+                c.execute(sql, (user_pk, ticker))
 
             rows = c.fetchall() 
             return [cls(**row) for row in rows]

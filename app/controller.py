@@ -40,17 +40,18 @@ def run():
             view.new_account()
 
             #save new account info into database
-            new_account = Account(None, fname, lname, username, hashpassword, salt, initial)
+            new_account = Account(None, fname, lname, username, hashpassword, \
+                salt, initial)
             new_account.save()
 
         elif choice == "2":#log in
-            username, password = view.login()
+            username, password = view.input_credentials()
 
-            #Check if login username is correct
+            #Check if login is correct
             user = Account.validate(username, password)
-            while user == False: #Error handling if username doesn't exist
+            while user == False: #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
-                username, password = view.login()
+                username, password = view.input_credentials()
                 user = Account.validate(username, password)
                 
             view.welcome(user.fname, user.lname)
@@ -58,7 +59,7 @@ def run():
             #Login Menu
             while True:
                 choice = view.login_menu()
-                if choice == "8": #Sign Out
+                if choice == "9": #Sign Out
                     view.signout()
                     return
                 
@@ -85,9 +86,16 @@ def run():
                 elif choice == "5": #current positions
                     position = Positions.select_all(user.pk)
                     for index in range(0,len(position)):
+                        #current price of stock
                         current_price = get_price(position[index].ticker)
+                        #current market value of shares
                         mv = 100 * position[index].shares * current_price
-                        view.display_position(position[index].ticker, position[index].shares, current_price, mv)
+                        #get profit or loss
+                        profitorloss = profitandloss(position[index])
+                        #display position
+                        view.display_position(position[index].ticker, \
+                            position[index].shares, current_price, mv, \
+                                profitorloss)
                     
                 elif choice == "6": #transaction history
                     trade = Trades.select_all(user.pk)
@@ -114,7 +122,11 @@ def run():
                                 ticker = view.which_stock()
                     ticker = ticker.upper()
 
-                    view.display_price(ticker, price)      
+                    view.display_price(ticker, price)    
+
+                elif choice == "8": #change username or password
+                    edit_account()
+        view.bad_input()
 
 def purchase_shares(user):
     ticker = view.buy_stock()
@@ -166,8 +178,6 @@ def sell_shares(user):
     ticker = view.sell_stock()
     price = "error"
 
-    print("while1")
-
     #exception handling for non-alpha ticker, incorrect ticker
     while ticker.isalpha() == False or price == "error":
         if ticker.isalpha() == False:
@@ -179,8 +189,7 @@ def sell_shares(user):
             except json.decoder.JSONDecodeError:
                 view.incorrect_ticker()
                 ticker = view.sell_stock()
-    
-    print("while2")
+
     shares = view.sell_shares()
     #exception handling for shares input
     while shares.isnumeric() == False:
@@ -216,4 +225,89 @@ def sell_shares(user):
     user.save()
 
     view.display_sell(ticker, shares, price, user.balance)
+
+def profitandloss(position):
+    total_mv = 0
+    abs_total_mv = 0
+    current_price = get_price(position.ticker)
+    trades = Trades.select_all(position.account_pk, position.ticker)
+    for j in range(len(trades)): #sum the mv for all trades you made with that stock
+        total_mv += trades[j].mv
+        abs_total_mv += abs(trades[j].mv)
+    
+    if position.shares == 0: #sold all your shares of this stock
+        pandl = total_mv
+
+    elif total_mv == abs_total_mv: #never sold any of your stock
+        print("not")
+        pandl = total_mv - (current_price * position.shares * 100)
+
+    else:
+        #compare average price of your trades with current market price of a stock
+        avg_price = total_mv / (position.shares * 100)
+        avg_vs_current = get_price(position.ticker) - avg_price
+        pandl = position.shares * 100 * avg_vs_current
+
+    return pandl
+
+def edit_account():
+    while True:
+        choice = view.edit_account_menu()
+        if choice == "3": #cancel editing accounts
+            return
+        
+        if choice == "1":
+            username, password = view.input_credentials()
+
+            #Check if credentials are correct
+            user = Account.validate(username, password)
+            while user == False: #Error handling if username doesn't exist or incorrect password
+                view.bad_login()
+                username, password = view.input_credentials()
+                user = Account.validate(username, password)
+
+            new_username = view.change_username()
+            #Error handling for same username
+            while user.username == new_username:
+                view.no_change()
+                new_username = view.change_username()
+            user.save()
+
+        if choice == "2":
+            username, password = view.input_credentials()
+
+            #Check if credentials are correct
+            user = Account.validate(username, password)
+            while user == False: #Error handling if username doesn't exist or incorrect password
+                view.bad_login()
+                username, password = view.input_credentials()
+                user = Account.validate(username, password)
+
+            #Get new password
+            password1, password2 = view.change_password()
+            while password1 != password2:
+                password1, password2 = view.create_password()
+                if password1 != password2:
+                    view.pass_dont_match()
+            user_check = Account.validate(username, password1)
+
+            #if new password is same as old password
+            while user_check != False:
+                view.no_change()
+
+                password1, password2 = view.change_password()
+                while password1 != password2:
+                    password1, password2 = view.create_password()
+                    if password1 != password2:
+                        view.pass_dont_match()
+
+                user_check = Account.validate(username, password1)
+
+            salt = str(os.urandom(64))
+            hashpassword = hash_password(password1 + salt)
+            user.salt = salt
+            user.password = hashpassword
+            user.save()
+            
+            
 

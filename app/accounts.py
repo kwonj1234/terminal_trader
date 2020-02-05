@@ -117,7 +117,8 @@ class Account:
 
     def sell_shares(self, ticker, shares, price, mv):
         #shares are by 100!
-        
+        price = -1*price #negative numbers represent sales in the database
+        mv = -1*mv
         #Enter trade and position in tables
         ticker = ticker.upper()
         position = Positions.select_one(ticker)
