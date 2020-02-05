@@ -11,11 +11,12 @@ def hash_password(password):
     return hashed_pw
 
 def get_price(ticker):
-    #TODO: get price from IEX Cloud API
-    with open("api_token.json", 'r') as json_file:
+    # get price from IEX Cloud API
+    with open("app/token.json", 'r') as json_file:
         tokens = json.load(json_file)
         token = tokens["publishable"]
 
     response = requests.get(f'https://cloud.iexapis.com/stable/stock/{ticker}/quote?token={token}')
     data = response.json()
+    
     return data["latestPrice"]

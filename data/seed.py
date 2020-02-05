@@ -9,10 +9,10 @@ def seed(dbpath = DBPATH):
         c = connection.cursor()
 
         sql = ("""INSERT INTO accounts (
-            fname, lname, username, password, balance
+            fname, lname, username, password, salt, balance
             ) VALUES (
-            ?,?,?,?,?);""")
-        # values = ("1", "2", "3", "4", "5")
+            ?,?,?,?,?,?);""")
+        # values = ("1", "2", "3", "4", "5". "6")
         c.execute(sql)
 
         sql = ("""INSERT INTO positions (
@@ -23,10 +23,10 @@ def seed(dbpath = DBPATH):
         c.execute(sql)
 
         sql = ("""INSERT INTO trades (
-            ticker, volume, time, price, account_pk
+            account_pk, time, ticker, price, volume, mv
             ) VALUES (
-            ?,?,?,?,?);""")
-        # values = ("1", "2", "3", "4", "5")
+            ?,?,?,?,?,?);""")
+        # values = ("1", "2", "3", "4", "5", "6")
         c.execute(sql)
     
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
 __pycache__/
 *.pyc
 tempCodeRunnerFile.py/
-data/api_token.json
+app/token.json

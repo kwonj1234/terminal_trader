@@ -1,6 +1,7 @@
 from app.accounts import Account
 from app.trades import Trades
 from app.positions import Positions
+from app.util import hash_password, get_price
 from app import view
 import os
 import random
@@ -9,190 +10,169 @@ import random
 def run():
     while True:
         choice = view.main_menu()
+
         if choice == "3": #Exit
-            return False
+            return 
+
         elif choice == "1": #Create Account
             view.create_account()
             fname = view.first_name()
             lname = view.last_name()
+
+            #Get username, no repeats
             username = view.new_username()
+            while Account.no_repeat_usernames(username) == False:
+                view.repeat_username()
+                username = view.new_username()
+            
+            #Get password, getpass is on so make sure it's the correct one by making user put it in twice
             password1, password2 = "a","b"
             salt = str(os.urandom(64))
-
             while password1 != password2:
                 password1, password2 = view.create_password()
                 if password1 != password2:
                     view.pass_dont_match()
+            #create a hashed salted password
+            hashpassword = hash_password(password1 + salt)
             
+            initial = view.initial_deposit()
             view.new_account()
 
             #save new account info into database
-            new_account = Account(None, fname, lname, username, password1, salt, 0)
+            new_account = Account(None, fname, lname, username, hashpassword, salt, initial)
             new_account.save()
 
         elif choice == "2":#log in
             username, password = view.login()
 
-            #Check if login info is correct
+            #Check if login username is correct
             user = Account.validate(username, password)
-            if user == False:
+            while user == False: #Error handling if username doesn't exist
                 view.bad_login()
-            
+                username, password = view.login()
+                user = Account.validate(username, password)
+                
             view.welcome(user.fname, user.lname)
 
-#TODO I'm up to here
-
-
-            #Login Menu - Check Balance, Withdraw, Deposit, Open Savings Account
-            info = model.Account.login(account_num)
-            account_num = model.Account(info["First Name"], info["Last Name"], \
-                account_num, info["PIN"], info["checking account"], info["savings account"])
-        
-            view.welcome(account_num.account_num, account_num.fname, account_num.lname)
+            #Login Menu
             while True:
                 choice = view.login_menu()
-                if choice == "1": #check balance
-                    view.check_balance(info)
-
-                elif choice == "2": #withdraw from checking
-                    login_withdrawal(account_num, choice)  #see line 79
-
-                elif choice == "3": #deposit into checking
-                    login_deposit(account_num)    #see line 121
-
-                elif choice == "4": #transfer funds
-                    login_transfer(account_num)   #see line 134
+                if choice == "8": #Sign Out
+                    view.signout()
+                    return
                 
-                elif choice == "5": #send money to other accounts
-                    login_send_money(account_num)   #see line 165
-                    
-                elif choice == "6": #create savings
-                    yesorno, deposit = view.create_savings()
-                    model.Account.open_savings(account_num ,yesorno, float(deposit))
-                    model.Account.save(account_num)
-                    view.savings_opened(float(deposit))
-
-                elif choice == "7": #sign out
-                    view.signout()  
-                    return  
-
-                else:
-                    view.bad_input()  
-
-        else:
-            view.bad_input()
-
-def login_withdrawal(account_num, choice):  #see line 52, withdraw money
-    while True:
-        choice = view.withdraw()
-        #Quick withdrawal 
-        if choice.isnumeric() == True:
-            if int(choice) in [1,4]:
-                #Quick withdrawal options
-                list = [10,20,50,100]
-                num = list[int(choice) - 1]
-                new_balance = model.Account.withdraw(account_num, num)
-
-                #Insufficient funds
-                if new_balance == False:
-                    view.insufficient_funds()
-                    return
-
-                view.withdraw_new_balance(num, new_balance)
-                model.Account.save(account_num)
-
-        #Withdraw custom amount
-            elif choice == "5":
-                num = view.withdraw_custom()
-
-                #error handling
-                if num.isnumeric() != True:
-                    view.not_dollar()
-                    return
-
-                new_balance = model.Account.withdraw(account_num, float(num))
+                if choice == "1": #Check Balance
+                    view.check_balance(user.balance)
                 
-                #insufficient funds
-                if new_balance == False:
-                    view.insufficient_funds()
-                    return
-                    
-                view.withdraw_new_balance(num, new_balance)
-                model.Account.save(account_num)
-            else:
-                view.bad_input()     
-        else:
-            view.bad_input()
+                elif choice == "2": #Deposit into balance
+                    deposit = view.deposit()
+                    #Error handling for non-numeric inputs
+                    while deposit.isnumeric() == False:
+                        view.not_dollar()
+                        deposit = view.deposit()
+                    #Add then display new balance
+                    user.balance += float(deposit)
+                    view.new_balance(user.balance)
+                    user.save()
+                
+                elif choice == "3": #purchase shares
+                    purchase_shares(user)
 
-def login_deposit(account_num):   #see line 55
-    num = view.deposit()
+                elif choice == "4": #sell shares
+                    sell_shares(user)
 
-    #error handling
-    while num.isnumeric == False:
-        view.not_dollar()
-        num = view.deposit()
+def purchase_shares(user):
+    ticker = view.buy_stock()
+    price = "error"
 
-    num = float(num)
-    new_balance = model.Account.deposit(account_num,num)
-    view.deposit_new_balance(num, new_balance)
-    model.Account.save(account_num)
+    #exception handling for non-alpha ticker, incorrect ticker
+    while ticker.isalpha() == False or price == "error":
+        if ticker.isalpha() == False:
+            view.not_ticker
+            ticker = view.buy_stock()
+        elif price == "error":
+            try:
+                price = get_price(ticker)
+            except Exception:
+                view.incorrect_ticker()
+                ticker = view.buy_stock()
 
-def login_transfer(account_num):   #see line 57
+    shares = view.buy_shares()
+    #exception handling for shares input
+    while shares.isnumeric() == False:
+        view.bad_input()
+        shares = view.buy_shares()
+    shares = float(shares) 
 
-    from_account = view.transfer_from_account()
-    #error handling for non-account inputs
-    while from_account != "checking" and from_account != "savings":
-        view.bad_transfer()
-        from_account = view.transfer_from_account()
-
-    to_account = view.transfer_to_account()
-    while to_account != "checking" and to_account != "savings":
-        view.bad_transfer()
-        to_account = view.transfer_to_account()
-
-    #error handling for non-numeric inputs
-    amount = view.transfer_amount()
-    while amount.isnumeric() == False:
-        view.not_dollar()
-        amount = view.transfer_amount()
-    
-    #convert amount value from string to float
-    amount = float(amount)
-
-    #error handling for insufficient funds
-    if amount > account_num.transfer_funds[from_account]:
-        view.insufficient_funds()
+    #market value
+    mv = shares*price*100 #shares are in 100 shares
+    #confirm the buy order
+    confirm = view.confirm_buy(ticker, shares, price, mv)
+    if confirm.lower() == "n":
         return
+    elif confirm.lower() == "y":
+        pass
+    else:
+        view.bad_input()
+        confirm = view.confirm_buy(ticker, shares, price, mv)
 
-    from_balance, to_balance = model.Account.transfer(account_num, \
-        from_account, to_account, amount)
-    view.transfer_new_balance(from_balance, to_balance, from_account, to_account)
-
-def login_send_money(account_num):
-    #receive inputs as well as error handling
-    receiver = view.send_money_account()
-    while receiver.isnumeric() == False or len(receiver) > 6 or len(receiver) < 6:
-        view.not_account()
-        receiver = view.send_money_account()
+    position = user.purchase_shares(ticker, shares, price, mv)
+    while position == False:
+        view.insufficient_funds
+        return
     
-    amount = view.send_money_amount()
-    while amount.isnumeric() == False:
-        view.not_dollar()
-        amount = view.send_money_amount()
+    user.balance -= mv
+    user.save()
+
+    view.display_buy(ticker, shares, price, user.balance)
+
+def sell_shares(user):
+    ticker = view.sell_stock()
+    price = "error"
+
+    #exception handling for non-alpha ticker, incorrect ticker
+    while ticker.isalpha() == False or price == "error":
+        if ticker.isalpha() == False:
+            view.not_ticker
+            ticker = view.sell_stock()
+        elif price == "error":
+            try:
+                price = get_price(ticker)
+            except Exception:
+                view.incorrect_ticker()
+                ticker = view.sell_stock()
     
-    while float(amount) >= account_num.checking:
-        view.insufficient_funds()
-        amount = view.send_money_amount()
-        
-    amount = float(amount)
+    shares = view.sell_shares()
+    #exception handling for shares input
+    while shares.isnumeric() == False:
+        view.bad_input()
+        shares = view.sell_shares()
+    shares = float(shares) 
 
-    #change checking account balance in class and return new balance
-    new_balance = model.Account.send_money(account_num, amount)
-    #save new balance 
-    model.Account.save_send_money(account_num, receiver, amount)
+    #market value
+    mv = shares*price*100 #shares are in 100 shares
+    #confirm the sell order
+    confirm = view.confirm_sell(ticker, shares, price, mv)
+    if confirm.lower() == "n":
+        return
+    elif confirm.lower() == "y":
+        pass
+    else:
+        view.bad_input()
+        confirm = view.confirm_sell(ticker, shares, price, mv)
+    
+    position_status = False
+    while position_status == False:
+        position = user.sell_shares(ticker, shares, price, mv)
+        if position == "no shares":
+            view.no_positions(ticker)
+        elif position == "insufficient shares":
+            view.insufficient_shares(ticker)
+        else:
+            position_status = True
 
-    #show new balance
-    view.sent(new_balance, receiver, amount)
-    return
+    user.balance += mv
+    user.save()
 
-run()
+    view.display_sell(ticker, shares, price, user.balance)
+

@@ -30,6 +30,9 @@ def create_password():
     password2 = getpass("\nPlease re-enter your password")
     return password1, password2
 
+def initial_deposit():
+    return input("\nHow much would you like to deposit?\n")
+
 def new_account():
     print("\nThank you for opening an accout with Herkshire Bathaway!")
 
@@ -43,74 +46,61 @@ def welcome(fname, lname):
 
 def login_menu():
     print('\nWhat would you like to do today?')
-    print('1) Investments Summary')
-    print('2) Purchase shares')
-    print('3) Sell shares')
-    print('4) Transaction History')
-    print('5) Sign Out')
+    print('1) Check Balance')
+    print('2) Deposit')
+    print('3) Purchase shares')
+    print('4) Sell shares')
+    print('5) Current Positions')
+    print('6) Transaction History')
+    print('7) Check Current Price of Stock')
+    print('8) Sign Out')
     return input()
 
-#Summary
+#1) Check Balance
+def check_balance(balance):
+    print(f"\nYour current balance is $" + "{:.2f}".format(balance))
 
-
-#Withdraw funds
-def withdraw():
-    print('\nHow much would you like to withdraw?')
-    print('1) $10')
-    print('2) $20')
-    print('3) $50')
-    print('4) $100')
-    print('5) Enter Custom Amount')
-    return input()
-
-def withdraw_custom():
-    print('\nEnter Custom Amount')
-    return input()
-
-def withdraw_new_balance(num, new_balance):
-    print('\nYou withdrew : $' + "{:.2f}".format(num))
-    print('Your new Checking Account balance is : $' + "{:.2f}".format(new_balance))
-
-#Deposit into your account
+#2) Deposit
 def deposit():
-    print('\nHow much would you like to deposit?')
+    return input("\nHow much would you like to deposit into your account?\n")
+
+def new_balance(new_balance):
+    print("\nYour new account balance is $" + "{:.2f}".format(new_balance))
+
+#3) purchase shares
+def buy_stock():
+    return input("\nWhat stock would you like to purchase shares from?\n(Input the ticker)\n")
+
+def buy_shares():
+    return input("\nHow many shares would you like to purchase?\n(1 = 100 shares)\n")
+
+def confirm_buy(ticker, shares, price, mv):
+    print(f"\nConfirm buy order of {shares} shares of {ticker} at ${price} per share")
+    print("Market value of $" + "{:.2f}".format(mv))
+    print("[y/n]")
     return input()
 
-def deposit_new_balance(num, new_balance):
-    print('\nYou deposited : $' + "{:.2f}".format(num))
-    print('Your Checking Account balance is : $' + "{:.2f}".format(new_balance))
+def display_buy(ticker, shares, price, new_balance):
+    print(f"\nSuccesfully bought {shares} shares of {ticker} at ${price} per share")
+    print("Your new balance is $" + "{:.2f}".format(new_balance))
 
-#Transfer money from one account to the other
-def transfer_from_account():
-    from_account = input('\nWhich account would you like to transfer funds from?\n')
-    return from_account
+#4) sell shares
+def sell_stock():
+    return input("\nWhat stock would you like to sell shares from?\n(Input the ticker)\n")
 
-def transfer_to_account():
-    to_account = input('\nWhich account would you like to transfer funds to?\n')
-    return to_account
+def sell_shares():
+    return input("\nHow many shares would you like to sell?\n(1 = 100 shares)\n")
 
-def transfer_amount():
-    amount = input('\nHow much would you like to transfer?\n')
-    return amount
-
-def transfer_new_balance(from_balance, to_balance, from_account, to_account):
-    print('\nYour new account balance is')
-    print(f'{from_account} : $' + "{:.2f}".format(from_balance))
-    print(f'{to_account} : $' + "{:.2f}".format(to_balance))
-
-#Send money to another account
-def send_money_account():
-    print('\nEnter the account number of the account you want to send money to')
+def confirm_sell(ticker, shares, price, mv):
+    print(f"\nConfirm sell order of {shares} shares of {ticker} at ${price} per share")
+    print("Market value of $" + "{:.2f}".format(mv))
+    print("[y/n]")
     return input()
 
-def send_money_amount():
-    print('\nEnter the amount you want to send')
-    return input()
+def display_sell(ticker, shares, price, new_balance):
+    print(f"\nSuccesfully sold {shares} shares of {ticker} at ${price} per share")
+    print("Your new balance is $" + "{:.2f}".format(new_balance))
 
-def sent(new_balance, receiver, amount):
-    print('\nYou sent $' + "{:.2f}".format(amount) + f" to account number {receiver}")
-    print('Your new checking account balance is $' + "{:.2f}".format(new_balance))
-    
 #Signing Out
 def signout():
     print('\nThank you for visiting Herkshire Bathaway\n')
@@ -122,11 +112,27 @@ def pass_dont_match():
 def bad_login():
     print("Invalid Username or Password")
 
+def repeat_username():
+    print("\nUsername is already in use")
+    print("Please choose another username")
+
 def insufficient_funds():
     print("Insufficient funds")
+
+def not_ticker():
+    print("Please input a ticker")
+
+def incorrect_ticker():
+    print("Ticker was inputted incorrectly")
 
 def bad_input():
     print("Invalid Input")
 
 def not_dollar():
     print("Please enter a dollar value")
+
+def no_positions(ticker):
+    print(f"You do not have any shares of {ticker}")
+
+def insufficient_shares(ticker):
+    print(f"Insufficient shares of {ticker}")
