@@ -4,6 +4,7 @@ from app.positions import Positions
 from app.util import hash_password, get_price
 from app import view
 import os
+import json
 import random
 
 
@@ -108,7 +109,7 @@ def run():
                         elif price == "error":
                             try:
                                 price = get_price(ticker)
-                            except Exception:
+                            except json.decoder.JSONDecodeError:
                                 view.incorrect_ticker()
                                 ticker = view.which_stock()
                     ticker = ticker.upper()
@@ -122,12 +123,12 @@ def purchase_shares(user):
     #exception handling for non-alpha ticker, incorrect ticker
     while ticker.isalpha() == False or price == "error":
         if ticker.isalpha() == False:
-            view.not_ticker
+            view.not_ticker()
             ticker = view.buy_stock()
         elif price == "error":
             try:
                 price = get_price(ticker)
-            except Exception:
+            except json.decoder.JSONDecodeError:
                 view.incorrect_ticker()
                 ticker = view.buy_stock()
     ticker = ticker.upper()
@@ -152,8 +153,8 @@ def purchase_shares(user):
         confirm = view.confirm_buy(ticker, shares, price, mv)
 
     position = user.purchase_shares(ticker, shares, price, mv)
-    while position == False:
-        view.insufficient_funds
+    if position == False:
+        view.insufficient_funds()
         return
     
     user.balance -= mv
@@ -165,18 +166,21 @@ def sell_shares(user):
     ticker = view.sell_stock()
     price = "error"
 
+    print("while1")
+
     #exception handling for non-alpha ticker, incorrect ticker
     while ticker.isalpha() == False or price == "error":
         if ticker.isalpha() == False:
-            view.not_ticker
+            view.not_ticker()
             ticker = view.sell_stock()
         elif price == "error":
             try:
                 price = get_price(ticker)
-            except Exception:
+            except json.decoder.JSONDecodeError:
                 view.incorrect_ticker()
                 ticker = view.sell_stock()
     
+    print("while2")
     shares = view.sell_shares()
     #exception handling for shares input
     while shares.isnumeric() == False:
@@ -195,14 +199,16 @@ def sell_shares(user):
     else:
         view.bad_input()
         confirm = view.confirm_sell(ticker, shares, price, mv)
-    
+
     position_status = False
     while position_status == False:
         position = user.sell_shares(ticker, shares, price, mv)
         if position == "no shares":
             view.no_positions(ticker)
+            return
         elif position == "insufficient shares":
             view.insufficient_shares(ticker)
+            return
         else:
             position_status = True
 

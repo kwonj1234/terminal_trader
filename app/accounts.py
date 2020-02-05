@@ -104,6 +104,7 @@ class Account:
             return False
 
         #Enter trade and position in tables
+        ticker = ticker.upper()
         position = Positions.select_one(ticker)
         if position == False: #returns false if the position does not exist
             position = Positions(None, ticker, shares, self.pk)
@@ -116,8 +117,9 @@ class Account:
 
     def sell_shares(self, ticker, shares, price, mv):
         #shares are by 100!
-
+        
         #Enter trade and position in tables
+        ticker = ticker.upper()
         position = Positions.select_one(ticker)
         if position == False:
             return "no shares"

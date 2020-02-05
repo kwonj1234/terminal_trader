@@ -20,3 +20,4 @@ def get_price(ticker):
     data = response.json()
     
     return data["latestPrice"]
+
