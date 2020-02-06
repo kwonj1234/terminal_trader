@@ -155,14 +155,14 @@ def purchase_shares(user):
     #market value
     mv = shares*price*100 #shares are in 100 shares
     #confirm the buy order
-    confirm = view.confirm_buy(ticker, shares, price, mv)
+    confirm = view.confirm_buy(ticker, shares, price, mv, user.balance)
     if confirm.lower() == "n":
         return
     elif confirm.lower() == "y":
         pass
     else:
         view.bad_input()
-        confirm = view.confirm_buy(ticker, shares, price, mv)
+        confirm = view.confirm_buy(ticker, shares, price, mv, user.balance)
 
     position = user.purchase_shares(ticker, shares, price, mv)
     if position == False:
@@ -200,14 +200,14 @@ def sell_shares(user):
     #market value
     mv = shares*price*100 #shares are in 100 shares
     #confirm the sell order
-    confirm = view.confirm_sell(ticker, shares, price, mv)
+    confirm = view.confirm_sell(ticker, shares, price, mv, user.balance)
     if confirm.lower() == "n":
         return
     elif confirm.lower() == "y":
         pass
     else:
         view.bad_input()
-        confirm = view.confirm_sell(ticker, shares, price, mv)
+        confirm = view.confirm_sell(ticker, shares, price, mv, user.balance)
 
     position_status = False
     while position_status == False:
@@ -239,7 +239,6 @@ def profitandloss(position):
         pandl = total_mv
 
     elif total_mv == abs_total_mv: #never sold any of your stock
-        print("not")
         pandl = total_mv - (current_price * position.shares * 100)
 
     else:
