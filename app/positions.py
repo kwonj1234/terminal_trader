@@ -9,10 +9,10 @@ class Positions:
     dbpath = ""
     tablename = "positions"
 
-    def __init__(self, pk, ticker, shares, account_pk):
+    def __init__(self, pk, ticker, lots, account_pk):
         self.pk = pk
         self.ticker = ticker
-        self.shares = shares
+        self.lots = lots
         self.account_pk = account_pk
 
     def save(self):
@@ -23,28 +23,28 @@ class Positions:
     def _insert(self): 
         with sqlite3.connect(self.dbpath) as conn:
             c = conn.cursor()
-            sql = """INSERT INTO {} (ticker, shares, account_pk)
+            sql = """INSERT INTO {} (ticker, lots, account_pk)
                 VALUES (?,?,?);""".format(self.tablename)
 
-            values = (self.ticker, self.shares, self.account_pk)
+            values = (self.ticker, self.lots, self.account_pk)
             c.execute(sql, values)
 
     def _update(self): 
         with sqlite3.connect(self.dbpath) as conn:
             c = conn.cursor()
-            sql = """UPDATE {} SET ticker = ?, shares = ?, account_pk = ?
+            sql = """UPDATE {} SET ticker = ?, lots = ?, account_pk = ?
                 WHERE pk = ?;""".format(self.tablename)
 
-            values = (self.ticker, self.shares, self.account_pk, self.pk)
+            values = (self.ticker, self.lots, self.account_pk, self.pk)
             c.execute(sql, values)
 
     @classmethod
-    def select_one(cls, ticker):
+    def select_one(cls, ticker, account_pk):
         with sqlite3.connect(cls.dbpath) as conn:
             c = conn.cursor()
-            sql = f"""SELECT * FROM {cls.tablename} WHERE ticker == ?"""
+            sql = f"""SELECT * FROM {cls.tablename} WHERE ticker = ? and account_pk = ?"""
 
-            c.execute(sql, (ticker,))
+            c.execute(sql, (ticker, account_pk))
             position = c.fetchall()
             #if position does not exist, return false
             if len(position) == 0 :
@@ -52,7 +52,7 @@ class Positions:
 
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
-            c.execute(sql, (ticker,))
+            c.execute(sql, (ticker, account_pk))
             position = c.fetchone()
             position = cls(**position)
             return position

@@ -77,62 +77,60 @@ class Account:
             c = conn.cursor()
             sql = f"""SELECT * FROM {cls.tablename} WHERE username == ?"""
 
-            # c.execute(sql, (username,))
-            # user = c.fetchall()
-            # #if username is incorrect, return false
-            # if len(user) == 0 :
-            #     return False
-
+            #check username
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             c.execute(sql, (username,))
-            user = c.fetchone()\
+            user = c.fetchone()
+
             #if username does not exist
             if user is None:
                 return None
             user = cls(**user)
 
+            #check password
             login_pass = password + user.salt
             login_pass = hash_password(login_pass)
 
+            #if password is incorrect
             if login_pass != user.password:
                 return None
             
             return user
 
-    def purchase_shares(self, ticker, shares, price, mv): 
-        #shares are by 100!
+    def purchase_lots(self, ticker, lots, price, mv): 
+        #lots are by 100 shares!
         #Error handling for insufficient funds
         if self.balance < mv:
             return False
 
         #Enter trade and position in tables
         ticker = ticker.upper()
-        position = Positions.select_one(ticker)
+        position = Positions.select_one(ticker, self.pk)
         if position == False: #returns false if the position does not exist
-            position = Positions(None, ticker, shares, self.pk)
+            position = Positions(None, ticker, lots, self.pk)
         else:
-            position.shares += shares
-        trade = Trades(None, self.pk, ticker, shares, price, mv, time.time())
+            position.lots += lots
+        trade = Trades(None, self.pk, ticker, lots, price, mv, time.time())
         position.save()
         trade.save()
         return position
 
-    def sell_shares(self, ticker, shares, price, mv):
+    def sell_lots(self, ticker, lots, price, mv):
         #shares are by 100!
         price = -1*price #negative numbers represent sales in the database
         mv = -1*mv
         #Enter trade and position in tables
         ticker = ticker.upper()
-        position = Positions.select_one(ticker)
+        position = Positions.select_one(ticker, self.pk)
         if position == False:
             return "no shares"
-        elif position.shares < shares:
+        elif position.lots < lots:
             return "insufficient shares"
         else:
-            position.shares -= shares
+            position.lots -= lots
 
-        trade = Trades(None, self.pk, ticker, shares, -1*price, mv, time.time())
+        trade = Trades(None, self.pk, ticker, lots, -1*price, mv, time.time())
         position.save()
         trade.save()
         return position

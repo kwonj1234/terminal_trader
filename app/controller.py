@@ -77,11 +77,11 @@ def run():
                     view.new_balance(user.balance)
                     user.save()
                 
-                elif choice == "3": #purchase shares
-                    purchase_shares(user)   #line 118
+                elif choice == "3": #purchase lots
+                    purchase_lots(user)   #line 118
 
                 elif choice == "4": #sell shares
-                    sell_shares(user)       #line 164 - similar to purchase shares
+                    sell_lots(user)       #line 164 - similar to purchase shares
 
                 elif choice == "5": #current positions
                     position = Positions.select_all(user.pk)
@@ -89,12 +89,12 @@ def run():
                         #current price of stock
                         current_price = get_price(position[index].ticker)
                         #current market value of shares
-                        mv = 100 * position[index].shares * current_price
+                        mv = 100 * position[index].lots * current_price
                         #get profit or loss
                         profitorloss = profitandloss(position[index])
                         #display position
                         view.display_position(position[index].ticker, \
-                            position[index].shares, current_price, mv, \
+                            position[index].lots, current_price, mv, \
                                 profitorloss)
                     
                 elif choice == "6": #transaction history
@@ -126,9 +126,15 @@ def run():
 
                 elif choice == "8": #change username or password
                     edit_account()
-        view.bad_input()
 
-def purchase_shares(user):
+                else:
+                    #error handling for non 1-9 value in log in menu
+                    view.bad_input()
+        else:
+            #error handling for non 1-3 value in main menu
+            view.bad_input()
+
+def purchase_lots(user):
     ticker = view.buy_stock()
     price = "error"
 
@@ -145,26 +151,26 @@ def purchase_shares(user):
                 ticker = view.buy_stock()
     ticker = ticker.upper()
 
-    shares = view.buy_shares()
+    lots = view.buy_lots()
     #exception handling for shares input
-    while shares.isnumeric() == False:
+    while lots.isnumeric() == False:
         view.bad_input()
-        shares = view.buy_shares()
-    shares = float(shares) 
+        lots = view.buy_lots()
+    lots = float(lots) 
 
     #market value
-    mv = shares*price*100 #shares are in 100 shares
+    mv = lots*price*100 #lots are 100 shares
     #confirm the buy order
-    confirm = view.confirm_buy(ticker, shares, price, mv, user.balance)
+    confirm = view.confirm_buy(ticker, lots, price, mv, user.balance)
     if confirm.lower() == "n":
         return
     elif confirm.lower() == "y":
         pass
     else:
         view.bad_input()
-        confirm = view.confirm_buy(ticker, shares, price, mv, user.balance)
+        confirm = view.confirm_buy(ticker, lots, price, mv, user.balance)
 
-    position = user.purchase_shares(ticker, shares, price, mv)
+    position = user.purchase_lots(ticker, lots, price, mv)
     if position == False:
         view.insufficient_funds()
         return
@@ -172,9 +178,9 @@ def purchase_shares(user):
     user.balance -= mv
     user.save()
 
-    view.display_buy(ticker, shares, price, user.balance)
+    view.display_buy(ticker, lots, price, user.balance)
 
-def sell_shares(user):
+def sell_lots(user):
     ticker = view.sell_stock()
     price = "error"
 
@@ -190,28 +196,29 @@ def sell_shares(user):
                 view.incorrect_ticker()
                 ticker = view.sell_stock()
 
-    shares = view.sell_shares()
+    lots = view.sell_lots()
     #exception handling for shares input
-    while shares.isnumeric() == False:
+    while lots.isnumeric() == False:
         view.bad_input()
-        shares = view.sell_shares()
-    shares = float(shares) 
+        lots = view.sell_lots()
+    lots = float(lots) 
 
     #market value
-    mv = shares*price*100 #shares are in 100 shares
+    mv = lots*price*100 #lots are in 100 shares
     #confirm the sell order
-    confirm = view.confirm_sell(ticker, shares, price, mv, user.balance)
+    confirm = view.confirm_sell(ticker, lots, price, mv, user.balance)
     if confirm.lower() == "n":
         return
     elif confirm.lower() == "y":
         pass
     else:
         view.bad_input()
-        confirm = view.confirm_sell(ticker, shares, price, mv, user.balance)
+        confirm = view.confirm_sell(ticker, lots, price, mv, user.balance)
 
+    #error handling for no positions
     position_status = False
     while position_status == False:
-        position = user.sell_shares(ticker, shares, price, mv)
+        position = user.sell_lots(ticker, lots, price, mv)
         if position == "no shares":
             view.no_positions(ticker)
             return
@@ -224,7 +231,7 @@ def sell_shares(user):
     user.balance += mv
     user.save()
 
-    view.display_sell(ticker, shares, price, user.balance)
+    view.display_sell(ticker, lots, price, user.balance)
 
 def profitandloss(position):
     total_mv = 0
@@ -235,17 +242,17 @@ def profitandloss(position):
         total_mv += trades[j].mv
         abs_total_mv += abs(trades[j].mv)
     
-    if position.shares == 0: #sold all your shares of this stock
+    if position.lots == 0: #sold all your shares of this stock
         pandl = total_mv
 
     elif total_mv == abs_total_mv: #never sold any of your stock
-        pandl = total_mv - (current_price * position.shares * 100)
+        pandl = total_mv - (current_price * position.lots * 100)
 
     else:
         #compare average price of your trades with current market price of a stock
-        avg_price = total_mv / (position.shares * 100)
+        avg_price = total_mv / (position.lots * 100)
         avg_vs_current = get_price(position.ticker) - avg_price
-        pandl = position.shares * 100 * avg_vs_current
+        pandl = position.lots * 100 * avg_vs_current
 
     return pandl
 
@@ -270,6 +277,8 @@ def edit_account():
             while user.username == new_username:
                 view.no_change()
                 new_username = view.change_username()
+            #save new username
+            user.username = new_username
             user.save()
 
         if choice == "2":
@@ -288,20 +297,17 @@ def edit_account():
                 password1, password2 = view.create_password()
                 if password1 != password2:
                     view.pass_dont_match()
-            user_check = Account.validate(username, password1)
 
             #if new password is same as old password
-            while user_check != False:
+            while password == password1:
                 view.no_change()
-
                 password1, password2 = view.change_password()
                 while password1 != password2:
                     password1, password2 = view.create_password()
                     if password1 != password2:
                         view.pass_dont_match()
 
-                user_check = Account.validate(username, password1)
-
+            #create new salt and new hash of password then save
             salt = str(os.urandom(64))
             hashpassword = hash_password(password1 + salt)
             user.salt = salt

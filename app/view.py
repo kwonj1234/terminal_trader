@@ -48,8 +48,8 @@ def login_menu():
     print('\nWhat would you like to do today?')
     print('1) Check Balance')
     print('2) Deposit')
-    print('3) Purchase shares')
-    print('4) Sell shares')
+    print('3) Purchase lots')
+    print('4) Sell lots')
     print('5) Current Positions')
     print('6) Transaction History')
     print('7) Check Current Price of Stock')
@@ -70,43 +70,43 @@ def new_balance(new_balance):
 
 #3) purchase shares
 def buy_stock():
-    return input("\nWhat stock would you like to purchase shares from?\n(Input the ticker)\n> ")
+    return input("\nWhat stock would you like to purchase lots from?\n(Input the ticker)\n> ")
 
-def buy_shares():
+def buy_lots():
     return input("\nHow many lots would you like to purchase?\n(1 lot = 100 shares)\n> ")
 
-def confirm_buy(ticker, shares, price, mv, current_balance):
-    print(f"\nConfirm buy order of {shares} lots of {ticker} at ${price} per share")
+def confirm_buy(ticker, lots, price, mv, current_balance):
+    print(f"\nConfirm buy order of {lots} lots of {ticker} at ${price} per share")
     print("Market value of $" + "{:.2f}".format(mv))
     print("Current Balance of $" + "{:.2f}".format(current_balance))
     print("[y/n]")
     return input("> ")
 
-def display_buy(ticker, shares, price, new_balance):
-    print(f"\nSuccesfully bought {shares} lots of {ticker} at ${price} per share")
+def display_buy(ticker, lots, price, new_balance):
+    print(f"\nSuccesfully bought {lots} lots of {ticker} at ${price} per share")
     print("Your new balance is $" + "{:.2f}".format(new_balance))
 
 #4) sell shares
 def sell_stock():
     return input("\nWhat stock would you like to sell lots from?\n(Input the ticker)\n> ")
 
-def sell_shares():
+def sell_lots():
     return input("\nHow many lots would you like to sell?\n(1 lot = 100 shares)\n> ")
 
-def confirm_sell(ticker, shares, price, mv, current_balance):
-    print(f"\nConfirm sell order of {shares} lots of {ticker} at ${price} per share")
+def confirm_sell(ticker, lots, price, mv, current_balance):
+    print(f"\nConfirm sell order of {lots} lots of {ticker} at ${price} per share")
     print("Market value of $" + "{:.2f}".format(mv))
     print("Current Balance of $" + "{:.2f}".format(current_balance))
     print("[y/n]")
     return input("> ")
 
-def display_sell(ticker, shares, price, new_balance):
-    print(f"\nSuccesfully sold {shares} lots of {ticker} at ${price} per share")
+def display_sell(ticker, lots, price, new_balance):
+    print(f"\nSuccesfully sold {lots} lots of {ticker} at ${price} per share")
     print("Your new balance is $" + "{:.2f}".format(new_balance))
 
 #5) display positions
-def display_position(ticker, shares, current_price, mv, profitorloss):
-    print(f"\n{ticker} : {shares} lots")
+def display_position(ticker, lots, current_price, mv, profitorloss):
+    print(f"\n{ticker} : {lots} lots")
     print(f"Market Value : ${mv}, Current Price : ${current_price}")
     if profitorloss < 0:
         print("Loss : ${0:.2f}\n".format(abs(profitorloss)))
@@ -118,8 +118,8 @@ def display_position(ticker, shares, current_price, mv, profitorloss):
 def display_header():
     print("\nTime Stamp          Ticker  Volume   Price        Market Value")
 
-def display_transactions(ticker, shares, price, mv, time):
-    print(f"{time} : {ticker},    {shares},    ${price},    ${mv}")
+def display_transactions(ticker, lots, price, mv, time):
+    print(f"{time} : {ticker},    {lots},    ${price},    ${mv}")
 
 #7) Get a quote, see current price
 def which_stock():

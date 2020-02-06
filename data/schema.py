@@ -23,7 +23,7 @@ def schema(dbpath = DBPATH):
         c.execute("""CREATE TABLE positions (
                 pk INTEGER PRIMARY KEY AUTOINCREMENT,
                 ticker VARCHAR,
-                shares INTEGER,
+                lots INTEGER,
                 account_pk INTEGER,
                 FOREIGN KEY (account_pk) REFERENCES account(pk)
                 );""")
@@ -39,7 +39,7 @@ def schema(dbpath = DBPATH):
                 mv FLOAT, 
                 FOREIGN KEY (account_pk) REFERENCES accounts(pk)
                 );""") 
-                #volume in 100 shares
+                #volume in lots = 100 shares
                 #mv = market value 
 
 if __name__ == "__main__":
