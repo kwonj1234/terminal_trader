@@ -49,7 +49,7 @@ def run():
 
             #Check if login is correct
             user = Account.validate(username, password)
-            while user == False: #Error handling if username doesn't exist or incorrect password
+            while user is None: #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
                 username, password = view.input_credentials()
                 user = Account.validate(username, password)

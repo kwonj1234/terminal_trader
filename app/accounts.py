@@ -77,23 +77,26 @@ class Account:
             c = conn.cursor()
             sql = f"""SELECT * FROM {cls.tablename} WHERE username == ?"""
 
-            c.execute(sql, (username,))
-            user = c.fetchall()
-            #if username is incorrect, return false
-            if len(user) == 0 :
-                return False
+            # c.execute(sql, (username,))
+            # user = c.fetchall()
+            # #if username is incorrect, return false
+            # if len(user) == 0 :
+            #     return False
 
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
             c.execute(sql, (username,))
-            user = c.fetchone()
+            user = c.fetchone()\
+            #if username does not exist
+            if user is None:
+                return None
             user = cls(**user)
 
             login_pass = password + user.salt
             login_pass = hash_password(login_pass)
 
             if login_pass != user.password:
-                return False
+                return None
             
             return user
 
