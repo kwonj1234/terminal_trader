@@ -3,9 +3,10 @@ from app.trades import Trades
 from app.positions import Positions
 from app.util import hash_password, get_price
 from app import view
-import os
 import json
+import os
 import random
+import time
 
 
 def run():
@@ -49,7 +50,7 @@ def run():
 
             #Check if login is correct
             user = Account.validate(username, password)
-            while user is None: #Error handling if username doesn't exist or incorrect password
+            while user is False: #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
                 username, password = view.input_credentials()
                 user = Account.validate(username, password)
@@ -84,8 +85,9 @@ def run():
                     sell_lots(user)       #line 184 - similar to purchase shares
 
                 elif choice == "5": #current positions
-                    position = Positions.select_all(user.pk)
-                    for index in range(0,len(position)):
+                    position = Positions.select_all_where("account_pk = ?", 
+                                (user.pk,))
+                    for index in range(0, len(position)):
                         #current price of stock
                         current_price = get_price(position[index].ticker)
                         #current market value of shares
@@ -98,12 +100,13 @@ def run():
                                 profitorloss)
                     
                 elif choice == "6": #transaction history
-                    trade = Trades.select_all(user.pk)
+                    trade = Trades.select_all_where("account_pk = ?", 
+                            (user.pk,))
                     view.display_header()
                     for index in range(0,len(trade)):
                         view.display_transactions(trade[index].ticker, \
                             trade[index].volume, trade[index].price, \
-                                trade[index].mv, trade[index].time)
+                                trade[index].mv, time.ctime(trade[index].time))
 
                 elif choice == "7": #get a quote
                     ticker = view.which_stock()
@@ -238,7 +241,7 @@ def profitandloss(position):
     total_mv = 0
     abs_total_mv = 0
     current_price = get_price(position.ticker)
-    trades = Trades.select_all(position.account_pk, position.ticker)
+    trades = Trades.select_all_where("account_pk = ? AND ticker = ?", (position.account_pk, position.ticker))
     for j in range(len(trades)): #sum the mv for all trades you made with that stock
         total_mv += trades[j].mv
         abs_total_mv += abs(trades[j].mv)
@@ -304,7 +307,7 @@ def edit_account():
                 view.no_change()
                 password1, password2 = view.change_password()
                 while password1 != password2:
-                    password1, password2 = view.create_password()
+                    password1, password2 = view.change_password()
                     if password1 != password2:
                         view.pass_dont_match()
 

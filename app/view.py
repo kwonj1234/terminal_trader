@@ -7,7 +7,7 @@ def main_menu():
     print("1) Create Account")
     print("2) Log in")
     print("3) Quit")
-    return input()
+    return input("> ")
 
 #Create Account
 def create_account():
@@ -128,7 +128,7 @@ def which_stock():
     return input("> ")
     
 def display_price(ticker, current_price):
-    print(f"{ticker} : ${current_price}")
+    print(f"\n{ticker} : ${current_price}")
 
 #8) Edit Account
 def edit_account_menu():

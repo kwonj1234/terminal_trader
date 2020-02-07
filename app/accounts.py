@@ -4,10 +4,12 @@ import time
 from .util import hash_password, get_price
 from .trades import Trades
 from .positions import Positions
+from .general_class import General
 
-class Account:
+class Account(General):
     dbpath = ""
     tablename = "accounts"
+    fields = ["pk", "fname", "lname", "username", "password", "salt", "balance"]
 
     def __init__(self, pk, fname, lname, username, password, salt, balance):
         self.pk = pk
@@ -18,46 +20,46 @@ class Account:
         self.salt = salt
         self.balance = balance
 
-    def save(self):
-        if self.pk is None:
-            self._insert()
-        self._update()
+    # def save(self):
+    #     if self.pk is None:
+    #         self._insert()
+    #     self._update()
 
-    def _insert(self): #inset new account if it doesn't exist
-        with sqlite3.connect(self.dbpath) as conn:
-            c = conn.cursor()
-            sql = """INSERT INTO {} (fname, lname, username, password, salt, balance)
-                VALUES (?,?,?,?,?,?);""".format(self.tablename)
+    # def _insert(self): #inset new account if it doesn't exist
+    #     with sqlite3.connect(self.dbpath) as conn:
+    #         c = conn.cursor()
+    #         sql = """INSERT INTO {} (fname, lname, username, password, salt, balance)
+    #             VALUES (?,?,?,?,?,?);""".format(self.tablename)
 
-            values = (self.fname, self.lname, self.username, self.password, self.salt, self.balance)
-            c.execute(sql, values)
+    #         values = (self.fname, self.lname, self.username, self.password, self.salt, self.balance)
+    #         c.execute(sql, values)
 
-    def _update(self): #update accounts that are already in database
-        with sqlite3.connect(self.dbpath) as conn:
-            c = conn.cursor()
-            sql = """UPDATE {} SET 
-                fname = ?, 
-                lname = ?, 
-                username = ?, 
-                password = ?,
-                salt = ?,
-                balance = ?
-                WHERE pk = ?;""".format(self.tablename)
+    # def _update(self): #update accounts that are already in database
+    #     with sqlite3.connect(self.dbpath) as conn:
+    #         c = conn.cursor()
+    #         sql = """UPDATE {} SET 
+    #             fname = ?, 
+    #             lname = ?, 
+    #             username = ?, 
+    #             password = ?,
+    #             salt = ?,
+    #             balance = ?
+    #             WHERE pk = ?;""".format(self.tablename)
 
-            values = (self.fname, self.lname, self.username, self.password, self.salt, self.balance, self.pk)
-            c.execute(sql, values)
+    #         values = (self.fname, self.lname, self.username, self.password, self.salt, self.balance, self.pk)
+    #         c.execute(sql, values)
 
-    @classmethod
-    def select_one(cls, pk):
-        #selects one entry from the database
-        with sqlite3.connect(cls.dbpath) as conn:
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
+    # @classmethod
+    # def select_one(cls, pk):
+    #     #selects one entry from the database
+    #     with sqlite3.connect(cls.dbpath) as conn:
+    #         conn.row_factory = sqlite3.Row
+    #         c = conn.cursor()
 
-            sql = f"""SELECT * FROM {cls.tablename} WHERE pk =?;"""
-            c.execute(sql, (pk,))
-            row = c.fetchone()
-            return cls(**row)
+    #         sql = f"""SELECT * FROM {cls.tablename} WHERE pk =?;"""
+    #         c.execute(sql, (pk,))
+    #         row = c.fetchone()
+    #         return cls(**row)
     
     @classmethod
     def no_repeat_usernames(cls,username): #make sure people don't have duplicate usernames
@@ -84,7 +86,7 @@ class Account:
 
             #if username does not exist
             if user is None:
-                return None
+                return False
             user = cls(**user)
 
             #check password
@@ -93,7 +95,7 @@ class Account:
 
             #if password is incorrect
             if login_pass != user.password:
-                return None
+                return False
             
             return user
 
@@ -105,14 +107,17 @@ class Account:
 
         #Enter trade and position in tables
         ticker = ticker.upper()
-        position = Positions.select_one(ticker, self.pk)
+        position = Positions.select_one("account_pk = ? AND ticker = ?", 
+                    (self.pk, ticker))
         if position == False: #returns false if the position does not exist
             position = Positions(None, ticker, lots, self.pk)
+
         else:
             position.lots += lots
         trade = Trades(None, self.pk, ticker, lots, price, mv, time.time())
         position.save()
         trade.save()
+
         return position
 
     def sell_lots(self, ticker, lots, price, mv):
@@ -121,7 +126,8 @@ class Account:
         mv = -1*mv
         #Enter trade and position in tables
         ticker = ticker.upper()
-        position = Positions.select_one(ticker, self.pk)
+        position = Positions.select_one("account_pk = ? AND ticker = ?", 
+                    (self.pk, ticker))
         if position == False:
             return "no shares"
         elif position.lots < lots:
