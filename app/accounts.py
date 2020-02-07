@@ -74,12 +74,11 @@ class Account:
     @classmethod
     def validate(cls, username, password):
         with sqlite3.connect(cls.dbpath) as conn:
+            conn.row_factory = sqlite3.Row
             c = conn.cursor()
             sql = f"""SELECT * FROM {cls.tablename} WHERE username == ?"""
 
             #check username
-            conn.row_factory = sqlite3.Row
-            c = conn.cursor()
             c.execute(sql, (username,))
             user = c.fetchone()
 

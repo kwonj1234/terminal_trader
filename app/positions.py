@@ -41,21 +41,17 @@ class Positions:
     @classmethod
     def select_one(cls, ticker, account_pk):
         with sqlite3.connect(cls.dbpath) as conn:
-            c = conn.cursor()
-            sql = f"""SELECT * FROM {cls.tablename} WHERE ticker = ? and account_pk = ?"""
-
-            c.execute(sql, (ticker, account_pk))
-            position = c.fetchall()
-            #if position does not exist, return false
-            if len(position) == 0 :
-                return False
-
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
+            sql = f"""SELECT * FROM {cls.tablename} WHERE ticker = ? and account_pk = ?"""
             c.execute(sql, (ticker, account_pk))
             position = c.fetchone()
-            position = cls(**position)
-            return position
+
+            #if position does not exist, return false
+            if position is None :
+                return False
+  
+            return cls(**position)
 
     @classmethod
     def select_all(cls, user_pk):

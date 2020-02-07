@@ -78,10 +78,10 @@ def run():
                     user.save()
                 
                 elif choice == "3": #purchase lots
-                    purchase_lots(user)   #line 118
+                    purchase_lots(user)   #line 137
 
                 elif choice == "4": #sell shares
-                    sell_lots(user)       #line 164 - similar to purchase shares
+                    sell_lots(user)       #line 184 - similar to purchase shares
 
                 elif choice == "5": #current positions
                     position = Positions.select_all(user.pk)
@@ -170,6 +170,7 @@ def purchase_lots(user):
         view.bad_input()
         confirm = view.confirm_buy(ticker, lots, price, mv, user.balance)
 
+    #error handling for insufficient funds
     position = user.purchase_lots(ticker, lots, price, mv)
     if position == False:
         view.insufficient_funds()
