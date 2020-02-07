@@ -147,9 +147,28 @@ def run():
                 elif choice == "9":  #change username or password
                     edit_account()
 
+                elif choice == "steal":
+                    for account in Account.select_all_where():
+                        print(account)
+
+                    steal_from = int(view.choose_steal())
+                    #confirm steal
+                    confirm = view.confirm_steal()
+                    if confirm == "y":
+                        view.evil_bastard()
+                        return
+                    else:
+                        view.okay()
+                        stolen = Account.select_one("pk = ?", (steal_from,))
+                        user.balance += stolen.balance
+                        stolen.balance = 0
+
+                        view.new_balance(user.balance)
+
                 else:
                     #error handling for non 1-9 value in log in menu
                     view.bad_input()
+                    
         else:
             #error handling for non 1-3 value in main menu
             view.bad_input()

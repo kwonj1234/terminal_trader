@@ -155,6 +155,22 @@ def change_password():
 def signout():
     print('\nThank you for visiting Herkshire Bathaway\n')
 
+#Steal from other accounts
+def choose_steal():
+    print('\nWho do you want to steal from?')
+    print('Enter pk')
+    return input('> ')
+
+def confirm_steal():
+    print('\nAre you sure you want to steal from others?')
+    print('[y/n]')
+    return input('> ')
+
+def evil_bastard():
+    print('\nEvil Bastard')
+
+def okay():
+    print('\nNah you can have it')
 #Bad input responses
 def pass_dont_match():
     print("\nPasswords do not match")

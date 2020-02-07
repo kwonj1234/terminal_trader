@@ -64,8 +64,13 @@ class General:
             conn.row_factory = sqlite3.Row
             c = conn.cursor()
 
-            sql = f'''SELECT * FROM {cls.tablename} WHERE {where_clause};'''
-            c.execute(sql, values)
-            result = c.fetchall()
+            if len(values) == 0:
+                sql = f'''SELECT * FROM {cls.tablename};'''
+                c.execute(sql)
+                result = c.fetchall()
+            else:
+                sql = f'''SELECT * FROM {cls.tablename} WHERE {where_clause};'''
+                c.execute(sql, values)
+                result = c.fetchall()
 
             return [cls(**row) for row in result]

@@ -100,4 +100,4 @@ class Account(General):
         return position
 
     def __repr__(self):
-        return f"<{self.pk} , {self.username}>"
+        return f"<{self.pk} ,{self.fname} {self.lname}, {self.username}, {self.balance}>"
