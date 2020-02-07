@@ -6,7 +6,6 @@ DIR = os.path.dirname(__file__)
 DBPATH = os.path.join(DIR, "teller.db")
 
 class Trades(General):
-    
     dbpath = ""
     tablename = "trades"
     fields = ["pk", "account_pk", "ticker", "volume", "price", "mv", "time"]

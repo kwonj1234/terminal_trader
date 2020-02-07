@@ -7,7 +7,6 @@ from .positions import Positions
 from .general_class import General
 
 class Account(General):
-    
     dbpath = ""
     tablename = "accounts"
     fields = ["pk", "fname", "lname", "username", "password", "salt", "balance"]
@@ -99,10 +98,6 @@ class Account(General):
         position.save()
         trade.save()
         return position
-        
-    
-    # @classmethod
-    # def validate_password(cls, username, password)
 
     def __repr__(self):
         return f"<{self.pk} , {self.username}>"
