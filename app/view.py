@@ -48,13 +48,14 @@ def login_menu():
     print('\nWhat would you like to do today?')
     print('1) Check Balance')
     print('2) Deposit')
-    print('3) Purchase lots')
-    print('4) Sell lots')
-    print('5) Current Positions')
-    print('6) Transaction History')
-    print('7) Check Current Price of Stock')
-    print('8) Edit Account')
-    print('9) Sign Out')
+    print('3) Withdraw')
+    print('4) Purchase lots')
+    print('5) Sell lots')
+    print('6) Current Positions')
+    print('7) Transaction History')
+    print('8) Check Current Price of Stock')
+    print('9) Edit Account')
+    print('10) Sign Out')
     return input("> ")
 
 #1) Check Balance
@@ -68,7 +69,11 @@ def deposit():
 def new_balance(new_balance):
     print("\nYour new account balance is $" + "{:.2f}".format(new_balance))
 
-#3) purchase shares
+#3) Withdraw
+def withdraw():
+    return input("\n How much would you like to withdraw from your account?\n>$")
+
+#4) purchase shares
 def buy_stock():
     return input("\nWhat stock would you like to purchase lots from?\n(Input the ticker)\n> ")
 
@@ -86,7 +91,7 @@ def display_buy(ticker, lots, price, new_balance):
     print(f"\nSuccesfully bought {lots} lots of {ticker} at ${price} per share")
     print("Your new balance is $" + "{:.2f}".format(new_balance))
 
-#4) sell shares
+#5) sell shares
 def sell_stock():
     return input("\nWhat stock would you like to sell lots from?\n(Input the ticker)\n> ")
 
@@ -104,7 +109,7 @@ def display_sell(ticker, lots, price, new_balance):
     print(f"\nSuccesfully sold {lots} lots of {ticker} at ${price} per share")
     print("Your new balance is $" + "{:.2f}".format(new_balance))
 
-#5) display positions
+#6) display positions
 def display_position(ticker, lots, current_price, mv, profitorloss):
     print(f"\n{ticker} : {lots} lots")
     print(f"Market Value : ${mv}, Current Price : ${current_price}")
@@ -114,14 +119,14 @@ def display_position(ticker, lots, current_price, mv, profitorloss):
         print("Profit : ${0:.2f}\n".format(profitorloss))
     else:
         print("No gains or loss")
-#6) display transactions
+#7) display transactions
 def display_header():
     print("\nTime Stamp          Ticker  Volume   Price        Market Value")
 
 def display_transactions(ticker, lots, price, mv, time):
     print(f"{time} : {ticker},    {lots},    ${price},    ${mv}")
 
-#7) Get a quote, see current price
+#8) Get a quote, see current price
 def which_stock():
     print("\nWhich stock would you like to see the current price of?")
     print("(Input the ticker)")
@@ -130,7 +135,7 @@ def which_stock():
 def display_price(ticker, current_price):
     print(f"\n{ticker} : ${current_price}")
 
-#8) Edit Account
+#9) Edit Account
 def edit_account_menu():
     print("\n1) Change username")
     print("2) Change password")
@@ -146,7 +151,7 @@ def no_change():
 def change_password():
     return getpass("Enter new password: "), getpass("Enter password again: ")
 
-#9) Signing Out
+#10) Signing Out
 def signout():
     print('\nThank you for visiting Herkshire Bathaway\n')
 

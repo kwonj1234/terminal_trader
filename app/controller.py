@@ -13,17 +13,17 @@ def run():
     while True:
         choice = view.main_menu()
 
-        if choice == "3": #Exit
+        if choice == "3":  #Exit
             return 
 
-        elif choice == "1": #Create Account
+        elif choice == "1":  #Create Account
             view.create_account()
             fname = view.first_name()
             lname = view.last_name()
 
             #Get username, no repeats
             username = view.new_username()
-            while Account.no_repeat_usernames(username) == False:
+            while Account.no_repeat_usernames(username) is False:
                 view.repeat_username()
                 username = view.new_username()
             
@@ -45,12 +45,12 @@ def run():
                 salt, initial)
             new_account.save()
 
-        elif choice == "2":#log in
+        elif choice == "2":  #log in
             username, password = view.input_credentials()
 
             #Check if login is correct
             user = Account.validate(username, password)
-            while user is False: #Error handling if username doesn't exist or incorrect password
+            while user is False:  #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
                 username, password = view.input_credentials()
                 user = Account.validate(username, password)
@@ -60,31 +60,48 @@ def run():
             #Login Menu
             while True:
                 choice = view.login_menu()
-                if choice == "9": #Sign Out
+                if choice == "10":  #Sign Out
                     view.signout()
                     return
                 
-                if choice == "1": #Check Balance
+                if choice == "1":  #Check Balance
                     view.check_balance(user.balance)
                 
-                elif choice == "2": #Deposit into balance
+                elif choice == "2":  #Deposit into balance
                     deposit = view.deposit()
                     #Error handling for non-numeric inputs
-                    while deposit.isnumeric() == False:
+                    while deposit.isnumeric() is False:
                         view.not_dollar()
                         deposit = view.deposit()
-                    #Add then display new balance
+                    #Add to then display balance
                     user.balance += float(deposit)
                     view.new_balance(user.balance)
                     user.save()
                 
-                elif choice == "3": #purchase lots
+                elif choice == "3":  #Withdraw into balance
+                    withdraw = view.withdraw()
+                    #Error handling for non-numeric inputs
+                    while withdraw.isnumeric() is False:
+                        view.not_dollar()
+                        withdraw = view.withdraw()
+
+                    withdraw = float(withdraw)
+                    #Error handling for insufficient funds
+                    while user.balance < withdraw:
+                        view.insufficient_funds()
+                        withdraw = view.withdraw()
+                    #Subtract from then display balance
+                    user.balance -= withdraw
+                    view.new_balance(user.balance)
+                    user.save()
+
+                elif choice == "4":  #purchase lots
                     purchase_lots(user)   #line 137
 
-                elif choice == "4": #sell shares
+                elif choice == "5":  #sell shares
                     sell_lots(user)       #line 184 - similar to purchase shares
 
-                elif choice == "5": #current positions
+                elif choice == "6":  #current positions
                     position = Positions.select_all_where("account_pk = ?", 
                                 (user.pk,))
                     for index in range(0, len(position)):
@@ -99,7 +116,7 @@ def run():
                             position[index].lots, current_price, mv, \
                                 profitorloss)
                     
-                elif choice == "6": #transaction history
+                elif choice == "7":  #transaction history
                     trade = Trades.select_all_where("account_pk = ?", 
                             (user.pk,))
                     view.display_header()
@@ -108,13 +125,13 @@ def run():
                             trade[index].volume, trade[index].price, \
                                 trade[index].mv, time.ctime(trade[index].time))
 
-                elif choice == "7": #get a quote
+                elif choice == "8":  #get a quote
                     ticker = view.which_stock()
                     price = "error"
 
                     #exception handling for non-alpha ticker, incorrect ticker
-                    while ticker.isalpha() == False or price == "error":
-                        if ticker.isalpha() == False:
+                    while ticker.isalpha() is False or price == "error":
+                        if ticker.isalpha() is False:
                             view.not_ticker
                             ticker = view.buy_stock()
                         elif price == "error":
@@ -127,7 +144,7 @@ def run():
 
                     view.display_price(ticker, price)    
 
-                elif choice == "8": #change username or password
+                elif choice == "9":  #change username or password
                     edit_account()
 
                 else:
@@ -142,8 +159,8 @@ def purchase_lots(user):
     price = "error"
 
     #exception handling for non-alpha ticker, incorrect ticker
-    while ticker.isalpha() == False or price == "error":
-        if ticker.isalpha() == False:
+    while ticker.isalpha() is False or price == "error":
+        if ticker.isalpha() is False:
             view.not_ticker()
             ticker = view.buy_stock()
         elif price == "error":
@@ -156,13 +173,13 @@ def purchase_lots(user):
 
     lots = view.buy_lots()
     #exception handling for shares input
-    while lots.isnumeric() == False:
+    while lots.isnumeric() is False:
         view.bad_input()
         lots = view.buy_lots()
     lots = float(lots) 
 
     #market value
-    mv = lots*price*100 #lots are 100 shares
+    mv = lots*price*100  #lots are 100 shares
     #confirm the buy order
     confirm = view.confirm_buy(ticker, lots, price, mv, user.balance)
     if confirm.lower() == "n":
@@ -175,7 +192,7 @@ def purchase_lots(user):
 
     #error handling for insufficient funds
     position = user.purchase_lots(ticker, lots, price, mv)
-    if position == False:
+    if position is False:
         view.insufficient_funds()
         return
     
@@ -189,8 +206,8 @@ def sell_lots(user):
     price = "error"
 
     #exception handling for non-alpha ticker, incorrect ticker
-    while ticker.isalpha() == False or price == "error":
-        if ticker.isalpha() == False:
+    while ticker.isalpha() is False or price == "error":
+        if ticker.isalpha() is False:
             view.not_ticker()
             ticker = view.sell_stock()
         elif price == "error":
@@ -202,13 +219,13 @@ def sell_lots(user):
 
     lots = view.sell_lots()
     #exception handling for shares input
-    while lots.isnumeric() == False:
+    while lots.isnumeric() is False:
         view.bad_input()
         lots = view.sell_lots()
     lots = float(lots) 
 
     #market value
-    mv = lots*price*100 #lots are in 100 shares
+    mv = lots*price*100  #lots are in 100 shares
     #confirm the sell order
     confirm = view.confirm_sell(ticker, lots, price, mv, user.balance)
     if confirm.lower() == "n":
@@ -221,7 +238,7 @@ def sell_lots(user):
 
     #error handling for no positions
     position_status = False
-    while position_status == False:
+    while position_status is False:
         position = user.sell_lots(ticker, lots, price, mv)
         if position == "no shares":
             view.no_positions(ticker)
@@ -242,14 +259,14 @@ def profitandloss(position):
     abs_total_mv = 0
     current_price = get_price(position.ticker)
     trades = Trades.select_all_where("account_pk = ? AND ticker = ?", (position.account_pk, position.ticker))
-    for j in range(len(trades)): #sum the mv for all trades you made with that stock
+    for j in range(len(trades)):  #sum the mv for all trades you made with that stock
         total_mv += trades[j].mv
         abs_total_mv += abs(trades[j].mv)
     
-    if position.lots == 0: #sold all your shares of this stock
+    if position.lots == 0:  #sold all your shares of this stock
         pandl = total_mv
 
-    elif total_mv == abs_total_mv: #never sold any of your stock
+    elif total_mv == abs_total_mv:  #never sold any of your stock
         pandl = total_mv - (current_price * position.lots * 100)
 
     else:
@@ -263,7 +280,7 @@ def profitandloss(position):
 def edit_account():
     while True:
         choice = view.edit_account_menu()
-        if choice == "3": #cancel editing accounts
+        if choice == "3":  #cancel editing accounts
             return
         
         if choice == "1":
@@ -271,7 +288,7 @@ def edit_account():
 
             #Check if credentials are correct
             user = Account.validate(username, password)
-            while user == False: #Error handling if username doesn't exist or incorrect password
+            while user is False:  #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
                 username, password = view.input_credentials()
                 user = Account.validate(username, password)
@@ -290,7 +307,7 @@ def edit_account():
 
             #Check if credentials are correct
             user = Account.validate(username, password)
-            while user == False: #Error handling if username doesn't exist or incorrect password
+            while user == False:  #Error handling if username doesn't exist or incorrect password
                 view.bad_login()
                 username, password = view.input_credentials()
                 user = Account.validate(username, password)
@@ -317,6 +334,3 @@ def edit_account():
             user.salt = salt
             user.password = hashpassword
             user.save()
-            
-            
-
