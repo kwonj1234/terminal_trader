@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../static/format.css">
+    <title>Trade</title>
+</head>
+<body>
+    <header class = "header">
+        <h1>Herkshire Bathaway</h1>
+    </header>
+<main>
+    <div class="row">
+        <div class="left_column">
+            <div class="card">
+                <h3>Current Positions</h3>
+                <!-- Display current Positions -->
+            </div>
+        </div>
+        <div class="right_column">
+            <div class="card">
+                <label for="ticker">Ticker:</label>
+                <input name="ticker" type="text">
+                <!-- display company name and current price below -->
+            </div>
+            <div class="card">
+                <form action="/trade" method="POST">
+                    <label for="choice">Choose to buy or sell:</label>
+                    <select id = "choice">
+                        <option value="buy">Buy</option>
+                        <option value="sell">Sell</option>
+                    </select>
+                    <label for="lots">Number of lots:</label>
+                    <input name="lots" type="text">
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

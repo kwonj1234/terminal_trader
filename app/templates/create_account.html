@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel = "stylesheet" type="text/css" href="../static/format.css">
+    <title>Create Account</title>
+</head>
+<body>
+    <header class="header">
+        <p>Thank you for choosing to open an account with Herkshire Bathaway!</p>
+    </header>
+<main>
+    <div class="card">
+        <form action="/create_account" method="POST"/>
+            <label for="fname">First Name: </label>
+            <input name="fname" type="text" placeholder="First Name"> <br><br>
+            <label for="lname">Last Name: </label>
+            <input name="lname" type="text" placeholder="Last Name"> <br><br>
+            <label for="username">Create a Username: </label>
+            <input name="username" type="text" placeholder="Username"> <br><br>
+            <label for="password1">Create a password: </label>
+            <input name="password1" type="password" placeholder="Password"> <br><br>
+            <label for="password2">Input Password again: </label>
+            <input name="password2" type="password" placeholder="Password"> <br><br>
+            <label for='deposit'>Input initial deposit: </label>
+            <input name="deposit" type="number" placeholder="Deposit"> <br><br>
+
+            <input type="submit">
+        </form>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="../static/format.css">
+    <title>Login Menu</title>
+</head>
+<body>
+    <header class="header">
+        <h1>Herkshire Bathaway</h1>
+    </header>
+<main>
+    <div class="card">
+        <div class="welcome">
+            <p>Welcome {{ fname }}</p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="current_balance">
+            <h3>Current Balance: {{ balance }}</h3>
+        </div>
+    </div>
+    <div class="card">
+        <div class="current_positions">
+            <h3>Current Positions</h3>
+            <!-- Show all current Positions -->
+        </div>
+    </div>
+    <div class="card">
+        <nav class="menu_options">
+            <a href="#Transfer Funds">Transfer Funds</a> <br>
+            <a href="#Trade">Trade</a> <br>
+            <a href="Transaction History">Transaction History</a> <br>
+            <a href="Check a position">Search Company</a> <br>
+            <a href="Edit Account">Edit Account Information</a> <br>
+            <a href="Sign Out">Sign Out</a>
+        </nav>
+    </div>
+</main>
+</body>
+</html>
