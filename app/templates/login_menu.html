@@ -12,12 +12,12 @@
 <main>
     <div class="card">
         <div class="welcome">
-            <p>Welcome {{ fname }}</p>
+            <p>Welcome {{ session.fname }}</p>
         </div>
     </div>
     <div class="card">
         <div class="current_balance">
-            <h3>Current Balance: {{ balance }}</h3>
+            <h3>Current Balance: ${{ session.balance }}</h3>
         </div>
     </div>
     <div class="card">

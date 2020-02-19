@@ -1,10 +1,10 @@
 import sqlite3
 import os
 import time
-from util import hash_password, get_price
-from trades import Trades
-from positions import Positions
-from general_class import General
+from .util import hash_password, get_price
+from .trades import Trades
+from .positions import Positions
+from .general_class import General
 
 class Account(General):
     dbpath = ""

@@ -1,5 +1,6 @@
 import os
 from app import Account, Positions, Trades, run
+from app import app as flask_app
 
 DIR = os.path.dirname(__file__)
 DBFILENAME = "teller.db"
@@ -10,4 +11,4 @@ Positions.dbpath = DBPATH
 Trades.dbpath = DBPATH
 
 if __name__ == "__main__":
-    run()
+    flask_app.run(debug=True)
